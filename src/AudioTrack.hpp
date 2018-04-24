@@ -22,6 +22,7 @@ public:
 	void stop() override;
 
 	void setPlayhead( float t ) override;
+	void setSpeed( float r ) override;
 
 	float getDuration() const override;
 	int getHeight() const override;

@@ -59,7 +59,8 @@ void Mapping::draw() {
 void Mapping::drawUi() {
 	if ( mCurrentPoint ) {
 		ui::LabelText( "Name: ", mCurrentPoint->name.c_str() );
-		ui::DragInt( "Address: ", &mCurrentPoint->dmxAddr, 0.1f, 0, 500 );
+		int addr = mCurrentPoint->dmxAddr + 1;
+		ui::DragInt( "Address: ", &addr , 0.1f, 0, 500 );
 	}
 }
 
@@ -91,7 +92,9 @@ void Mapping::generateTexture() {
 		for ( const auto &pair : mMap ) {
 			auto g = dmxData[pair.second.dmxAddr];
 			gl::ScopedColor c( g, g, g );
-			gl::drawSolidCircle( vec2( pair.first ) * static_cast<float>( mTextureMag ),  circleRadius );
+			glm::vec2 pos = vec2( pair.first ) * static_cast<float>( mTextureMag );
+			gl::drawSolidCircle( pos,  circleRadius );
+			gl::drawString( pair.second.name, pos );
 		}
 	}
 

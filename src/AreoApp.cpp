@@ -56,7 +56,7 @@ void AreoApp::setup() {
 //	mTransport.add( mTimecode );
 	mTransport.setDisplayWidth( getWindowWidth() );
 
-	mFrameSequence->setMuteUntilFrame( 340 );
+//	mFrameSequence->setMuteUntilFrame( 340 );
 
 	mMappingOffset = ivec2( 20 , mTransport.getHeight() + 20 );
 
@@ -69,6 +69,7 @@ void AreoApp::quit() {
 
 void AreoApp::mouseDown( MouseEvent event ) {
 	mMapping->mouseDown( event.getPos() - mMappingOffset );
+	mTransport.mouseDown( event.getPos() );
 }
 
 void AreoApp::mouseUp( MouseEvent event ) {

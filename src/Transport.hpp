@@ -13,7 +13,7 @@
 #define DEFAULT_FRAMERATE 25.f
 
 struct TransportObject {
-	TransportObject(): mMuteUntilFrame( 0 ) {}
+	TransportObject(): mMuteUntilFrame( 0 ), mSpeed( 1.0f ) {}
 	virtual ~TransportObject() = default;
 
 	virtual void setName( std::string name ) { mName = name; }
@@ -22,6 +22,7 @@ struct TransportObject {
 	virtual void setPlayhead( float t ) {}
 	virtual void play() {}
 	virtual void stop() {}
+	virtual void setSpeed( float r ) { mSpeed = r; }
 
 	virtual float getDuration() const {}
 	virtual int getHeight() const {}
@@ -40,6 +41,7 @@ struct TransportObject {
 protected:
 	int mMuteUntilFrame;
 	std::string mName;
+	float mSpeed;
 };
 
 using TransportObjectRef = std::shared_ptr<TransportObject>;
@@ -85,5 +87,8 @@ protected:
 
 protected:
 	float timeToScreen( float t ) { return t / mDuration * mDisplaySize.x; }
+	float screenToTime( int x ) { return static_cast<float>( x ) / mDisplaySize.x * mDuration; }
+public:
+	void mouseDown( glm::ivec2 p );
 };
 

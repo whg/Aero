@@ -63,8 +63,14 @@ def arrange(raw, width=28, height=17):
                     cells[index]['y'] = y // 2
                     cells[index]['name'] = cell
                 else:
-                    box, bank, chan = [int(p) - 1 for p in cell.split('.')]
-                    cells[index]['addr'] = box * 48 + bank * 3 + chan
+                    try:
+                        box, bank, chan = [int(p) - 1 for p in cell.split('.')]
+                        addr =  box * 48 + bank * 3 + chan
+                    except ValueError:
+                        addr = 300
+                    cells[index]['addr'] = addr
+                    print(cell, box, bank, chan, addr)
+
     return cells
 
 

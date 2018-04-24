@@ -58,6 +58,13 @@ void Transport::drawUi() {
 	ui::DragInt( "Frame", &frame );
 	ui::DragFloat( "Frame rate", &mFrameRate, 0.1f, 1 );
 	ui::DragInt( "Cue point", &mCueFrame, 0.1f, 0 );
+
+	for ( const auto &object : mObjects ) {
+		auto mu = object->getMuteUntilFrame();
+		if ( ui::DragInt( ( object->getName() + " mu" ).c_str(), &mu, 0 ) ) {
+			object->setMuteUntilFrame( mu );
+		}
+	}
 }
 
 void Transport::play() {
@@ -117,5 +124,18 @@ int Transport::getHeight() const {
 		height+= object->getHeight();
 	}
 	return height;
+}
+
+void Transport::mouseDown( glm::ivec2 p ) {
+	if ( p.y < getHeight() ) {
+
+		if ( mPlayThread.joinable() ) {
+			stop();
+		}
+
+		float t = screenToTime( p.x );
+		mCueFrame = static_cast<int>( t * DEFAULT_FRAMERATE );
+		play();
+	}
 }
 

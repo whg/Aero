@@ -74,7 +74,6 @@ void AudioTrack::stop() {
 
 void AudioTrack::setPlayhead( float t ) {
 	mBufferPlayer->seekToTime( t );
-	cout << "seeked to " << t << endl;
 }
 
 float AudioTrack::getDuration() const {
@@ -123,6 +122,10 @@ void AudioTrack::generateTexture( const ci::audio::BufferRef &buffer ) {
 	auto surface = fbo->readPixels8u( Area( 0, 0, fbo->getWidth(), fbo->getHeight() ) );
 	mTexture = gl::Texture::create( surface );
 
+}
+
+void AudioTrack::setSpeed( float r ) {
+//	mBufferPlayer->
 }
 
 
