@@ -31,6 +31,10 @@ Output::Output(): mDmxData( DMXPRO_PACKET_SIZE, 0), mValueData( 500, 0 ), mValue
 
 }
 
+Output::~Output() {
+	mSerial.close();
+}
+
 OutputRef Output::get() {
 	static OutputRef instance = nullptr;
 	if ( !instance ) {
@@ -76,5 +80,7 @@ void Output::setValues( uint8_t value ) {
 	std::fill( mValueData.begin(), mValueData.end(), value );
 	mDataSignal.emit();
 }
+
+
 
 

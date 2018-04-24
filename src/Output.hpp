@@ -20,6 +20,7 @@ public:
 	using DataSignal_t = cinder::signals::Signal<void()>;
 
 public:
+	~Output();
 	static OutputRef get();
 
 	void setValue( size_t index, uint8_t value );

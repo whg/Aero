@@ -38,7 +38,7 @@ void AreoApp::setup() {
 
 	ui::initialize();
 
-	auto imageFolder = getAssetPath( "Trigger_comp" );
+	auto imageFolder = getAssetPath( "test_002" );
 	console() << imageFolder.string() << std::endl;
 	mMapping = std::make_shared<Mapping>( getAssetPath( "mapping.json" ) );
 	mFrameSequence = FrameSequence::create( imageFolder, *mMapping );
@@ -81,6 +81,7 @@ void AreoApp::keyDown( KeyEvent event ) {
 	if ( key == ' ' ) {
 		if ( mTransport.isPlaying() ) {
 			mTransport.stop();
+			Output::get()->setValues( 0 );
 		} else {
 			mTransport.play();
 		}
