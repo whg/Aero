@@ -12,7 +12,6 @@
 
 using namespace ci;
 using namespace std;
-using namespace std::chrono;
 
 Transport::Transport(): mDisplaySize( 640, 0 ), mDuration( 0.f ), mCueFrame( 300 ),
 						mFrameRate( 25 ), mPlaying( false ), mPlayhead( 0 ),
@@ -55,7 +54,7 @@ void Transport::draw() {
 
 void Transport::drawUi() {
 	ui::ScopedWindow window( "Transport" );
-	int frame = mFrameNumber.load();
+	int frame = static_cast<int>( mFrameNumber.load() );
 	ui::DragInt( "Frame", &frame );
 	ui::DragFloat( "Frame rate", &mFrameRate, 0.1f, 1 );
 	ui::DragInt( "Cue point", &mCueFrame, 0.1f, 0 );
@@ -64,7 +63,7 @@ void Transport::drawUi() {
 void Transport::play() {
 
 	mFrameNumber = mCueFrame;
-	mPlayhead.store( DEFAULT_FRAMERATE * mFrameNumber );
+	mPlayhead.store( mFrameNumber / DEFAULT_FRAMERATE );
 	mPlaying.store( true );
 
 	mPlayThread = std::thread( &Transport::update, this );
@@ -108,7 +107,7 @@ void Transport::update() {
 			break;
 		}
 
-		std::this_thread::sleep_for( duration<float>( frameTime ) );
+		std::this_thread::sleep_for( chrono::duration<float>( frameTime ) );
 	}
 }
 

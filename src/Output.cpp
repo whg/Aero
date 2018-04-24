@@ -27,6 +27,8 @@ Output::Output(): mDmxData( DMXPRO_PACKET_SIZE, 0), mValueData( 500, 0 ), mValue
 
 	mSerial.open( "ttyUSB0", DMXPRO_BAUD_RATE );
 
+	getDataSignal().connect( std::bind( &Output::writeData, this ) );
+
 }
 
 OutputRef Output::get() {
@@ -55,16 +57,21 @@ void Output::drawUi() {
 
 void Output::setValue( size_t index, uint8_t value ) {
 //	mDmxData[DMXPRO_START_INDEX + index] = value;
-	mValueData[index] = value > mValueThreshold ? 255 : 0;
+	mValueData[index] = static_cast<uint8_t>( value > mValueThreshold ? 255 : 0 );
 	mDataSignal.emit();
 }
 
 void Output::setValues( const std::vector<uint8_t> &values ) {
 	std::copy( values.begin(), values.end(), mValueData.begin() );
 	for ( uint8_t &v : mValueData ) {
-		v = v > mValueThreshold ? 255 : 0;
+		v = static_cast<uint8_t>( v > mValueThreshold ? 255 : 0 );
 	}
 	mDataSignal.emit();
+}
+
+void Output::writeData() {
+	std::copy( mValueData.begin(), mValueData.end(), mDmxData.begin() + DMXPRO_START_INDEX );
+	mSerial.write( mDmxData );
 }
 
 

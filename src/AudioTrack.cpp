@@ -12,6 +12,26 @@ std::string Node::getName() const { return ""; }
 using namespace std;
 using namespace ci;
 
+
+ci::audio::DeviceRef AudioTrack::getOutputDevice() {
+	static ci::audio::DeviceRef device = nullptr;
+
+	if ( !device ) {
+		auto ctx = audio::Context::master();
+		auto dm = ctx->deviceManager();
+		auto ni = dm->findDeviceByKey( "alsa_output.usb-Native_Instruments_Komplete_Audio_6_139D1FA3-00.analog-surround-21" );
+		if ( ni ) {
+			cout << "found NI" << endl;
+			device = ni->getDefaultOutput();
+		} else {
+			device = dm->getDefaultOutput();
+			cout << "reverting to default audio device" << endl;
+		}
+	}
+
+	return device;
+}
+
 AudioTrack::AudioTrack(): mDisplaySize( 1440, 100 ) {
 
 }
@@ -20,15 +40,22 @@ AudioTrackRef AudioTrack::create( const ci::fs::path &path, int height ) {
 
 	auto output = std::make_shared<AudioTrack>();
 
+
+
 	auto sourceFile = audio::load( loadFile( path ) );
 	auto buffer = sourceFile->loadBuffer();
 
 	auto ctx = audio::Context::master();
+
+//	auto outputNode = ctx->createOutputDeviceNode( AudioTrack::getOutputDevice() );
+//	ctx->disable();
+//	ctx->setOutput( outputNode );
+//	ctx->enable();
+
 	output->mBufferPlayer = ctx->makeNode( new audio::BufferPlayerNode( buffer ) );
 	output->mBufferPlayer->stop();
 	output->mGain = ctx->makeNode( new audio::GainNode( 0.5f ) );
 	output->mBufferPlayer >> output->mGain >> ctx->getOutput();
-
 	output->mDisplaySize.y = height;
 	output->generateTexture( buffer );
 	output->mBufferPlayer->stop();
@@ -47,6 +74,7 @@ void AudioTrack::stop() {
 
 void AudioTrack::setPlayhead( float t ) {
 	mBufferPlayer->seekToTime( t );
+	cout << "seeked to " << t << endl;
 }
 
 float AudioTrack::getDuration() const {
@@ -96,6 +124,7 @@ void AudioTrack::generateTexture( const ci::audio::BufferRef &buffer ) {
 	mTexture = gl::Texture::create( surface );
 
 }
+
 
 
 

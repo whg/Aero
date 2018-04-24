@@ -16,6 +16,7 @@ public:
 	AudioTrack();
 
 	static AudioTrackRef create( const ci::fs::path &path, int height=100 );
+	static ci::audio::DeviceRef getOutputDevice();
 
 	void play() override;
 	void stop() override;

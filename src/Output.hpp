@@ -31,6 +31,8 @@ public:
 	DataSignal_t& getDataSignal() { return mDataSignal; }
 	const std::vector<uint8_t>& getValueData() const { return mValueData; }
 
+	void writeData();
+
 protected:
 	std::vector<uint8_t> mDmxData, mValueData;
 	whg::Serial mSerial;

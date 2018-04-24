@@ -47,13 +47,13 @@ void AreoApp::setup() {
 	mHouseAudio = AudioTrack::create( getAssetPath( "house.wav" ) );
 	mHouseAudio->setName( "House audio" );
 
-	mTimecode = AudioTrack::create( getAssetPath("timecode.wav"), 30 );
-	mTimecode->setName( "Timecode" );
+//	mTimecode = AudioTrack::create( getAssetPath("timecode.wav"), 30 );
+//	mTimecode->setName( "Timecode" );
 
 
 	mTransport.add( mFrameSequence );
 	mTransport.add( mHouseAudio );
-	mTransport.add( mTimecode );
+//	mTransport.add( mTimecode );
 	mTransport.setDisplayWidth( getWindowWidth() );
 
 	mFrameSequence->setMuteUntilFrame( 340 );
