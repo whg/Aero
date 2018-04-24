@@ -36,7 +36,7 @@ AudioTrack::AudioTrack(): mDisplaySize( 1440, 100 ) {
 
 }
 
-AudioTrackRef AudioTrack::create( const ci::fs::path &path, int height ) {
+AudioTrackRef AudioTrack::create( const ci::fs::path &path, size_t channel, int height ) {
 
 	auto output = std::make_shared<AudioTrack>();
 
@@ -55,12 +55,15 @@ AudioTrackRef AudioTrack::create( const ci::fs::path &path, int height ) {
 	output->mBufferPlayer = ctx->makeNode( new audio::BufferPlayerNode( buffer ) );
 	output->mBufferPlayer->stop();
 	output->mGain = ctx->makeNode( new audio::GainNode( 0.5f ) );
-	output->mBufferPlayer >> output->mGain >> ctx->getOutput();
+	output->mChannelRouter = ctx->makeNode( new audio::ChannelRouterNode( audio::Node::Format().channels( ctx->getOutput()->getNumChannels() ) ) );
+
+	output->mBufferPlayer >> output->mGain >> output->mChannelRouter->route( 0, channel )>>  ctx->getOutput(); //->getOutputs()[channel];
 	output->mDisplaySize.y = height;
 	output->generateTexture( buffer );
 	output->mBufferPlayer->stop();
 	output->mBufferPlayer->disable();
 
+//	ctx->
 	return output;
 }
 

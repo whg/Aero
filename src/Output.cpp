@@ -45,13 +45,11 @@ void Output::drawUi() {
 	ui::LabelText( mSerial.isOpen() ? "Connected" : "-", "DMX status: " );
 	ui::DragInt( "Threshold", &mValueThreshold, 0.1f, 0, 255 );
 	if ( ui::Button( "All on" ) ) {
-		std::fill( mValueData.begin(), mValueData.end(), 255 );
-		mDataSignal.emit();
+		setValues( 255 );
 	}
 	ui::SameLine();
 	if ( ui::Button( "All off" ) ) {
-		std::fill( mValueData.begin(), mValueData.end(), 0 );
-		mDataSignal.emit();
+		setValues( 0 );
 	}
 }
 
@@ -72,6 +70,11 @@ void Output::setValues( const std::vector<uint8_t> &values ) {
 void Output::writeData() {
 	std::copy( mValueData.begin(), mValueData.end(), mDmxData.begin() + DMXPRO_START_INDEX );
 	mSerial.write( mDmxData );
+}
+
+void Output::setValues( uint8_t value ) {
+	std::fill( mValueData.begin(), mValueData.end(), value );
+	mDataSignal.emit();
 }
 
 

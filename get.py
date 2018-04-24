@@ -44,7 +44,7 @@ def get():
                               discoveryServiceUrl=discoveryUrl)
 
     spreadsheetId = '1ii-KUiV7Gi7C0jeePzzl2I-EBDMF8CKnLT8bE-iVhqw'
-    rangeName = 'Sheet1!B2:AC35'
+    rangeName = 'Sheet1!B2:AC37'
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     values = result.get('values', [])
@@ -69,7 +69,7 @@ def arrange(raw, width=28, height=17):
                     except ValueError:
                         addr = 300
                     cells[index]['addr'] = addr
-                    print(cell, box, bank, chan, addr)
+                    print(cells[index]['name'], cell, box, bank, chan, addr)
 
     return cells
 

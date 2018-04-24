@@ -44,16 +44,16 @@ void AreoApp::setup() {
 	mFrameSequence = FrameSequence::create( imageFolder, *mMapping );
 	mFrameSequence->setName( "Bubbles" );
 
-	mHouseAudio = AudioTrack::create( getAssetPath( "house.wav" ) );
+	mHouseAudio = AudioTrack::create( getAssetPath( "house.wav" ), 0 );
 	mHouseAudio->setName( "House audio" );
 
-//	mTimecode = AudioTrack::create( getAssetPath("timecode.wav"), 30 );
-//	mTimecode->setName( "Timecode" );
+	mTimecode = AudioTrack::create( getAssetPath("timecode.wav"), 1, 30 );
+	mTimecode->setName( "Timecode" );
 
 
 	mTransport.add( mFrameSequence );
 	mTransport.add( mHouseAudio );
-//	mTransport.add( mTimecode );
+	mTransport.add( mTimecode );
 	mTransport.setDisplayWidth( getWindowWidth() );
 
 //	mFrameSequence->setMuteUntilFrame( 340 );
@@ -84,6 +84,12 @@ void AreoApp::keyDown( KeyEvent event ) {
 		} else {
 			mTransport.play();
 		}
+	}
+	else if ( key == ']' ) {
+		Output::get()->setValues( 0 );
+	}
+	else if ( key == '[' ) {
+		Output::get()->setValues( 255 );
 	}
 }
 

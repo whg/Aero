@@ -15,7 +15,7 @@
 
 using namespace ci;
 
-Mapping::Mapping( const ci::fs::path &path ): mMaxDmxChannel( 0 ), mNeedsToRedraw( true ), mTextureMag( 30 ) {
+Mapping::Mapping( const ci::fs::path &path ): mMaxDmxChannel( 0 ), mNeedsToRedraw( true ), mTextureMag( 30 ), mDrawLabels( false ) {
 
 	ci::JsonTree jsonFile( ci::loadFile( path ) );
 	for ( const ci::JsonTree &json : jsonFile ) {
@@ -57,10 +57,14 @@ void Mapping::draw() {
 }
 
 void Mapping::drawUi() {
+	ui::ScopedWindow window( "Mapping" );
+	if ( ui::Checkbox( "Draw labels ", &mDrawLabels ) ) {
+		mNeedsToRedraw = true;
+	}
 	if ( mCurrentPoint ) {
-		ui::LabelText( "Name: ", mCurrentPoint->name.c_str() );
+		ui::LabelText( "Name", mCurrentPoint->name.c_str() );
 		int addr = mCurrentPoint->dmxAddr + 1;
-		ui::DragInt( "Address: ", &addr , 0.1f, 0, 500 );
+		ui::DragInt( "Address", &addr , 0.1f, 0, 500 );
 	}
 }
 
@@ -94,7 +98,9 @@ void Mapping::generateTexture() {
 			gl::ScopedColor c( g, g, g );
 			glm::vec2 pos = vec2( pair.first ) * static_cast<float>( mTextureMag );
 			gl::drawSolidCircle( pos,  circleRadius );
-			gl::drawString( pair.second.name, pos );
+			if ( mDrawLabels ) {
+				gl::drawString( pair.second.name, pos );
+			}
 		}
 	}
 

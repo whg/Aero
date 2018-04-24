@@ -23,8 +23,8 @@ public:
 	static OutputRef get();
 
 	void setValue( size_t index, uint8_t value );
-
 	void setValues( const std::vector<uint8_t> &values );
+	void setValues( uint8_t value );
 
 	void drawUi();
 

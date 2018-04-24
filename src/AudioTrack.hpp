@@ -15,7 +15,7 @@ class AudioTrack : public TransportObject {
 public:
 	AudioTrack();
 
-	static AudioTrackRef create( const ci::fs::path &path, int height=100 );
+	static AudioTrackRef create( const ci::fs::path &path, size_t channel, int height=100 );
 	static ci::audio::DeviceRef getOutputDevice();
 
 	void play() override;
@@ -31,6 +31,7 @@ public:
 protected:
 	ci::audio::GainNodeRef mGain;
 	ci::audio::BufferPlayerNodeRef mBufferPlayer;
+	ci::audio::ChannelRouterNodeRef mChannelRouter;
 
 protected:
 	glm::ivec2 mDisplaySize;

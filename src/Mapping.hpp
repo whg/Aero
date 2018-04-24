@@ -51,6 +51,7 @@ protected:
 	ci::gl::TextureRef mTexture;
 	int mTextureMag;
 	bool mNeedsToRedraw;
+	bool mDrawLabels;
 
 	void generateTexture();
 	void setNeedsToRedraw( bool b ) { mNeedsToRedraw = b; }
