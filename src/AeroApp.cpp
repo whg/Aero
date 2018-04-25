@@ -12,7 +12,7 @@
 using namespace ci;
 using namespace ci::app;
 
-class AreoApp : public App {
+class AeroApp : public App {
   public:
     void setup() override;
     void quit() override;
@@ -37,7 +37,7 @@ class AreoApp : public App {
 	fs::path folderPathFromName( std::string name );
 };
 
-void AreoApp::setup() {
+void AeroApp::setup() {
 //    getWindow()->setTitle( "CinderApp" );
 
 	ui::initialize();
@@ -66,20 +66,20 @@ void AreoApp::setup() {
 	mOutput = Output::get();
 }
 
-void AreoApp::quit() {
+void AeroApp::quit() {
 
 }
 
-void AreoApp::mouseDown( MouseEvent event ) {
+void AeroApp::mouseDown( MouseEvent event ) {
 	mMapping->mouseDown( event.getPos() - mMappingOffset );
 	mTransport.mouseDown( event.getPos() );
 }
 
-void AreoApp::mouseUp( MouseEvent event ) {
+void AeroApp::mouseUp( MouseEvent event ) {
 	mMapping->mouseUp( event.getPos() - mMappingOffset );
 }
 
-void AreoApp::keyDown( KeyEvent event ) {
+void AeroApp::keyDown( KeyEvent event ) {
 	auto key = event.getChar();
 	if ( key == ' ' ) {
 		if ( mTransport.isPlaying() ) {
@@ -100,7 +100,7 @@ void AreoApp::keyDown( KeyEvent event ) {
 	}
 }
 
-void AreoApp::draw() {
+void AeroApp::draw() {
 	gl::enableAlphaBlending();
 
     gl::clear( Color( 0.1f, 0.1f, 0.1f ) );
@@ -133,7 +133,7 @@ void AreoApp::draw() {
 	}
 }
 
-bool AreoApp::loadSequence( std::string folder ) {
+bool AeroApp::loadSequence( std::string folder ) {
 	auto path = folderPathFromName( folder );
 	if ( ! fs::exists( path ) ) {
 		return false;
@@ -142,9 +142,9 @@ bool AreoApp::loadSequence( std::string folder ) {
 	return true;
 }
 
-fs::path AreoApp::folderPathFromName( std::string name ) {
+fs::path AeroApp::folderPathFromName( std::string name ) {
 	fs::path base( "/home/whg/Dropbox/sequences/trigger sequence" );
 	return base / name;
 }
 
-CINDER_APP( AreoApp, RendererGl )
+CINDER_APP( AeroApp, RendererGl )
