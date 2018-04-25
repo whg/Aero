@@ -60,7 +60,7 @@ AudioTrackRef AudioTrack::create( const ci::fs::path &path, size_t channel, int 
 		ctx->enable();
 		created = true;
 	}
-	
+
 	output->mBufferPlayer = ctx->makeNode( new audio::BufferPlayerNode( buffer ) );
 	output->mBufferPlayer->stop();
 	output->mGain = ctx->makeNode( new audio::GainNode( 0.5f ) );

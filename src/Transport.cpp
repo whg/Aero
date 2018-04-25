@@ -8,6 +8,7 @@
 #include "Transport.hpp"
 
 #include "CinderImGui.h"
+#include "Output.hpp"
 
 
 using namespace ci;
@@ -136,6 +137,8 @@ void Transport::update() {
 
 		std::this_thread::sleep_for( chrono::duration<float>( frameTime ) );
 	}
+
+	Output::get()->setValues( 0 );
 }
 
 int Transport::getHeight() const {

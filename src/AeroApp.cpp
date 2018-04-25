@@ -47,6 +47,7 @@ void AeroApp::setup() {
 	auto imageFolder = getAssetPath( mSequenceFolder );
 	mMapping = std::make_shared<Mapping>( getAssetPath( "mapping.json" ) );
 	mFrameSequence = FrameSequence::create( folderPathFromName( mSequenceFolder ), *mMapping );
+	mFrameSequence->setName( "Bubbles" );
 
 	fs::path audioPath("/home/whg/Dropbox/sequences/audio/playback_audio_mono.wav");
 	mHouseAudio = AudioTrack::create( audioPath, 0 );
