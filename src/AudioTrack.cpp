@@ -22,7 +22,7 @@ ci::audio::DeviceRef AudioTrack::getOutputDevice() {
 		auto ni = dm->findDeviceByKey( "alsa_output.usb-Native_Instruments_Komplete_Audio_6_139D1FA3-00.analog-surround-21" );
 		if ( ni ) {
 			cout << "found NI" << endl;
-			device = ni->getDefaultOutput();
+			device = ni;
 		} else {
 			device = dm->getDefaultOutput();
 			cout << "reverting to default audio device" << endl;
@@ -47,11 +47,20 @@ AudioTrackRef AudioTrack::create( const ci::fs::path &path, size_t channel, int 
 
 	auto ctx = audio::Context::master();
 
-//	auto outputNode = ctx->createOutputDeviceNode( AudioTrack::getOutputDevice() );
-//	ctx->disable();
-//	ctx->setOutput( outputNode );
-//	ctx->enable();
+	auto device = AudioTrack::getOutputDevice();
+	cout << "audio sample rate is: " << device->getSampleRate() << endl;
 
+	static bool created = false;
+	if ( !created ) {
+		auto format = audio::Node::Format();
+		format.setChannels( 3 );
+		auto outputNode = ctx->createOutputDeviceNode( device, format );
+		ctx->disable();
+		ctx->setOutput( outputNode );
+		ctx->enable();
+		created = true;
+	}
+	
 	output->mBufferPlayer = ctx->makeNode( new audio::BufferPlayerNode( buffer ) );
 	output->mBufferPlayer->stop();
 	output->mGain = ctx->makeNode( new audio::GainNode( 0.5f ) );

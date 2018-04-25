@@ -48,7 +48,7 @@ void AeroApp::setup() {
 	mMapping = std::make_shared<Mapping>( getAssetPath( "mapping.json" ) );
 	mFrameSequence = FrameSequence::create( folderPathFromName( mSequenceFolder ), *mMapping );
 
-	fs::path audioPath("/home/whg/Dropbox/sequences/audio/playback audio.wav");
+	fs::path audioPath("/home/whg/Dropbox/sequences/audio/playback_audio_mono.wav");
 	mHouseAudio = AudioTrack::create( audioPath, 0 );
 	mHouseAudio->setName( "House audio" );
 
