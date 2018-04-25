@@ -13,7 +13,7 @@
 using namespace ci;
 using namespace std;
 
-Transport::Transport(): mDisplaySize( 640, 0 ), mDuration( 0.f ), mCueFrame( 300 ),
+Transport::Transport(): mDisplaySize( 640, 0 ), mDuration( 0.f ), mCueFrame( 0 ),
 						mFrameRate( 25 ), mPlaying( false ), mPlayhead( 0 ),
 						mFrameNumber( 0 ), mEndFrame( 0 ) {
 
@@ -29,12 +29,30 @@ void Transport::add( TransportObjectRef object ) {
 	}
 }
 
+void Transport::remove( std::string name ) {
+	for ( auto it = mObjects.begin(); it != mObjects.end(); ++it ) {
+		if ( (*it)->getName() == name ) {
+			mObjects.erase( it );
+			break;
+		}
+	}
+}
+
+void Transport::replace( std::string name, TransportObjectRef object ) {
+	for ( auto it = mObjects.begin(); it != mObjects.end(); ++it ) {
+		if ( (*it)->getName() == name ) {
+			*it = object;
+			break;
+		}
+	}
+}
+
 void Transport::draw() {
 
 	{
 		gl::ScopedMatrices m;
 		for ( const auto &object : mObjects ) {
-			object->draw( mDisplaySize.x );
+			object->draw( static_cast<int>( mDisplaySize.x * ( object->getDuration() / mDuration ) ) );
 			int h = object->getHeight();
 
 			if ( object->getMuteUntil() > 0.f )  {
@@ -55,7 +73,9 @@ void Transport::draw() {
 void Transport::drawUi() {
 	ui::ScopedWindow window( "Transport" );
 	int frame = static_cast<int>( mFrameNumber.load() );
+	float time = frame / DEFAULT_FRAMERATE;
 	ui::DragInt( "Frame", &frame );
+	ui::DragFloat( "Time", &time );
 	ui::DragFloat( "Frame rate", &mFrameRate, 0.1f, 1 );
 	ui::DragInt( "Cue point", &mCueFrame, 0.1f, 0 );
 
@@ -138,4 +158,8 @@ void Transport::mouseDown( glm::ivec2 p ) {
 		play();
 	}
 }
+
+
+
+
 

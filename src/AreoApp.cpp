@@ -30,21 +30,26 @@ class AreoApp : public App {
 	AudioTrackRef mTimecode;
 
 	ivec2 mMappingOffset;
+
+	bool loadSequence( std::string folder );
+	std::string mSequenceFolder;
+
+	fs::path folderPathFromName( std::string name );
 };
 
 void AreoApp::setup() {
 //    getWindow()->setTitle( "CinderApp" );
-//	setWindowSize( 1000, 1000 );
 
 	ui::initialize();
 
-	auto imageFolder = getAssetPath( "test_002" );
-	console() << imageFolder.string() << std::endl;
+	mSequenceFolder.reserve( 50 );
+	mSequenceFolder = "test_001";
+	auto imageFolder = getAssetPath( mSequenceFolder );
 	mMapping = std::make_shared<Mapping>( getAssetPath( "mapping.json" ) );
-	mFrameSequence = FrameSequence::create( imageFolder, *mMapping );
-	mFrameSequence->setName( "Bubbles" );
+	mFrameSequence = FrameSequence::create( folderPathFromName( mSequenceFolder ), *mMapping );
 
-	mHouseAudio = AudioTrack::create( getAssetPath( "house.wav" ), 0 );
+	fs::path audioPath("/home/whg/Dropbox/sequences/audio/playback audio.wav");
+	mHouseAudio = AudioTrack::create( audioPath, 0 );
 	mHouseAudio->setName( "House audio" );
 
 	mTimecode = AudioTrack::create( getAssetPath("timecode.wav"), 1, 30 );
@@ -55,8 +60,6 @@ void AreoApp::setup() {
 	mTransport.add( mHouseAudio );
 	mTransport.add( mTimecode );
 	mTransport.setDisplayWidth( getWindowWidth() );
-
-//	mFrameSequence->setMuteUntilFrame( 340 );
 
 	mMappingOffset = ivec2( 20 , mTransport.getHeight() + 20 );
 
@@ -92,6 +95,9 @@ void AreoApp::keyDown( KeyEvent event ) {
 	else if ( key == '[' ) {
 		Output::get()->setValues( 255 );
 	}
+	else if ( key == 'r' ) {
+		loadSequence( mSequenceFolder );
+	}
 }
 
 void AreoApp::draw() {
@@ -109,6 +115,36 @@ void AreoApp::draw() {
 
 	mOutput->drawUi();
 
+	ui::ScopedWindow window( "Main" );
+	static double labelTimer = 0;
+	static std::string label;
+	if ( ui::InputText( "Sequence", &mSequenceFolder, ImGuiInputTextFlags_EnterReturnsTrue ) ) {
+		if ( loadSequence( mSequenceFolder ) ) {
+			label = "loaded";
+		}
+		else {
+			label = "folder doesn't exist";
+		}
+		labelTimer = getElapsedSeconds();
+	}
+
+	if ( labelTimer > getElapsedSeconds() - 3 ) {
+		ui::Text( label.c_str() );
+	}
+}
+
+bool AreoApp::loadSequence( std::string folder ) {
+	auto path = folderPathFromName( folder );
+	if ( ! fs::exists( path ) ) {
+		return false;
+	}
+	mFrameSequence->setup( path, *mMapping );
+	return true;
+}
+
+fs::path AreoApp::folderPathFromName( std::string name ) {
+	fs::path base( "/home/whg/Dropbox/sequences/trigger sequence" );
+	return base / name;
 }
 
 CINDER_APP( AreoApp, RendererGl )

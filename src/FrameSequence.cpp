@@ -14,6 +14,11 @@ using namespace std;
 FrameSequenceRef FrameSequence::create( const ci::fs::path &imageFolder, const Mapping &mapping, float frameRate ) {
 
 	auto output = std::make_shared<FrameSequence>();
+	output->setup( imageFolder, mapping, frameRate );
+	return output;
+}
+
+void FrameSequence::setup( const ci::fs::path &imageFolder, const Mapping &mapping, float frameRate ) {
 
 	std::vector<std::string> filepaths;
 	for ( fs::directory_iterator it( imageFolder ); it != fs::directory_iterator(); ++it ) {
@@ -24,17 +29,16 @@ FrameSequenceRef FrameSequence::create( const ci::fs::path &imageFolder, const M
 
 	std::sort( filepaths.begin(), filepaths.end() );
 
+	mDmxSequences.clear();
 	for ( const auto &filepath : filepaths ) {
 		auto channel = Channel( loadImage( filepath ) );
-		output->mDmxSequences.emplace_back( mapping.dmxFromChannel( channel ) );
+		mDmxSequences.emplace_back( mapping.dmxFromChannel( channel ) );
 	}
 
-	output->mFrameRate = frameRate;
-	output->mDisplayHeight = mapping.getMaxDmxChannel();
+	mFrameRate = frameRate;
+	mDisplayHeight = mapping.getMaxDmxChannel();
 
-	output->mTexture = output->generateTexture();
-
-	return output;
+	mTexture = generateTexture();
 }
 
 float FrameSequence::getDuration() const {
@@ -89,4 +93,6 @@ void FrameSequence::writeData( size_t frameNum ) const {
 	}
 
 }
+
+
 

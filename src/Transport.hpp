@@ -51,6 +51,8 @@ public:
 	Transport();
 
 	void add( TransportObjectRef object );
+	void remove( std::string name );
+	void replace( std::string name, TransportObjectRef object );
 
 	void draw();
 	void drawUi();

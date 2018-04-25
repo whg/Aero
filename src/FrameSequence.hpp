@@ -16,7 +16,7 @@ public:
 
 public:
 	static FrameSequenceRef create( const ci::fs::path &imageFolder, const Mapping &mapping, float frameRate=25.f );
-
+	void setup( const ci::fs::path &imageFolder, const Mapping &mapping, float frameRate=25.f );
 	float getDuration() const override;
 	int getHeight() const override;
 	void draw( int width ) const override;
