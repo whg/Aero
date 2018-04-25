@@ -63,16 +63,17 @@ AudioTrackRef AudioTrack::create( const ci::fs::path &path, size_t channel, int 
 
 	output->mBufferPlayer = ctx->makeNode( new audio::BufferPlayerNode( buffer ) );
 	output->mBufferPlayer->stop();
-	output->mGain = ctx->makeNode( new audio::GainNode( 0.5f ) );
+	output->mGain = ctx->makeNode( new audio::GainNode( 0.99f ) );
 	output->mChannelRouter = ctx->makeNode( new audio::ChannelRouterNode( audio::Node::Format().channels( ctx->getOutput()->getNumChannels() ) ) );
 
-	output->mBufferPlayer >> output->mGain >> output->mChannelRouter->route( 0, channel )>>  ctx->getOutput(); //->getOutputs()[channel];
+	output->mBufferPlayer >> output->mGain >> output->mChannelRouter->route( 0, channel ) >>  ctx->getOutput(); //->getOutputs()[channel];
 	output->mDisplaySize.y = height;
 	output->generateTexture( buffer );
 	output->mBufferPlayer->stop();
 	output->mBufferPlayer->disable();
 
-//	ctx->
+	output->mAllowsMute = false;
+
 	return output;
 }
 

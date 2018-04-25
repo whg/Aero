@@ -39,6 +39,7 @@ void FrameSequence::setup( const ci::fs::path &imageFolder, const Mapping &mappi
 	mDisplayHeight = mapping.getMaxDmxChannel();
 
 	mTexture = generateTexture();
+	mAllowsMute = true;
 }
 
 float FrameSequence::getDuration() const {

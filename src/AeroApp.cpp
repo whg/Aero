@@ -40,7 +40,7 @@ class AeroApp : public App {
 void AeroApp::setup() {
 //    getWindow()->setTitle( "CinderApp" );
 
-	ui::initialize();
+	ui::initialize( ui::Options().darkTheme() );
 
 	mSequenceFolder.reserve( 50 );
 	mSequenceFolder = "test_001";

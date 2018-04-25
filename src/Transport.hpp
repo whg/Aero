@@ -13,7 +13,7 @@
 #define DEFAULT_FRAMERATE 25.f
 
 struct TransportObject {
-	TransportObject(): mMuteUntilFrame( 0 ), mSpeed( 1.0f ) {}
+	TransportObject(): mMuteUntilFrame( 0 ), mSpeed( 1.0f ), mAllowsMute( true ) {}
 	virtual ~TransportObject() = default;
 
 	virtual void setName( std::string name ) { mName = name; }
@@ -29,6 +29,7 @@ struct TransportObject {
 
 	virtual void draw( int width ) const {}
 
+	virtual bool getAllowsMute() const { return mAllowsMute; }
 	virtual int getMuteUntilFrame() const { return mMuteUntilFrame; }
 	virtual float getMuteUntil() const { return mMuteUntilFrame / DEFAULT_FRAMERATE; }
 	virtual void setMuteUntilFrame( int frame ) { mMuteUntilFrame = frame; }
@@ -39,6 +40,7 @@ struct TransportObject {
 	virtual void writeData( size_t frameNum ) const {}
 
 protected:
+	bool mAllowsMute;
 	int mMuteUntilFrame;
 	std::string mName;
 	float mSpeed;
@@ -77,7 +79,7 @@ protected:
 	float mDuration;
 	std::vector<TransportObjectRef> mObjects;
 
-	int mCueFrame;
+	int mCueFrame, mStopFrame;
 
 	std::thread mPlayThread;
 	std::atomic<bool> mPlaying;
