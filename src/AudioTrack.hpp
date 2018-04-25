@@ -29,6 +29,7 @@ public:
 	void draw( int width ) const override;
 
 protected:
+	ci::audio::BufferRef mBuffer, mCurrentBuffer;
 	ci::audio::GainNodeRef mGain;
 	ci::audio::BufferPlayerNodeRef mBufferPlayer;
 	ci::audio::ChannelRouterNodeRef mChannelRouter;
@@ -36,6 +37,8 @@ protected:
 protected:
 	glm::ivec2 mDisplaySize;
 	ci::gl::TextureRef mTexture;
-	void generateTexture( const ci::audio::BufferRef &buffer );
+	void generateTexture();
+
+	float mOriginalDuration;
 };
 

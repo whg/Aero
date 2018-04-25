@@ -89,7 +89,7 @@ void Transport::drawUi() {
 	float time = frame / DEFAULT_FRAMERATE;
 	ui::DragInt( "Frame", &frame );
 	ui::DragFloat( "Time", &time );
-	ui::DragFloat( "Frame rate", &mFrameRate, 0.1f, 1, mEndFrame );
+	ui::DragFloat( "Frame rate", &mFrameRate, 0.1f, 1, 100 );
 	ui::DragInt( "Cue frame", &mCueFrame, 0.5f, 0, mStopFrame );
 	ui::DragInt( "Stop frame", &mStopFrame, 0.5f, mCueFrame, mEndFrame );
 
@@ -109,6 +109,8 @@ void Transport::play() {
 	mPlayhead.store( mFrameNumber / DEFAULT_FRAMERATE );
 	mPlaying.store( true );
 
+
+
 	if ( mPlayThread.joinable() ) {
 		mPlayThread.join();
 	}
@@ -116,6 +118,7 @@ void Transport::play() {
 	mPlayThread = std::thread( &Transport::update, this );
 
 	for ( auto &object : mObjects ) {
+		object->setSpeed( mFrameRate / DEFAULT_FRAMERATE );
 		object->play();
 		object->setPlayhead( mPlayhead.load() );
 	}

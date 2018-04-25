@@ -43,7 +43,8 @@ AudioTrackRef AudioTrack::create( const ci::fs::path &path, size_t channel, int 
 
 
 	auto sourceFile = audio::load( loadFile( path ) );
-	auto buffer = sourceFile->loadBuffer();
+	output->mBuffer = sourceFile->loadBuffer();
+	output->mCurrentBuffer = sourceFile->loadBuffer();
 
 	auto ctx = audio::Context::master();
 
@@ -53,7 +54,7 @@ AudioTrackRef AudioTrack::create( const ci::fs::path &path, size_t channel, int 
 	static bool created = false;
 	if ( !created ) {
 		auto format = audio::Node::Format();
-		format.setChannels( 3 );
+		format.setChannels( 2 );
 		auto outputNode = ctx->createOutputDeviceNode( device, format );
 		ctx->disable();
 		ctx->setOutput( outputNode );
@@ -61,18 +62,19 @@ AudioTrackRef AudioTrack::create( const ci::fs::path &path, size_t channel, int 
 		created = true;
 	}
 
-	output->mBufferPlayer = ctx->makeNode( new audio::BufferPlayerNode( buffer ) );
+	output->mBufferPlayer = ctx->makeNode( new audio::BufferPlayerNode( output->mCurrentBuffer ) );
 	output->mBufferPlayer->stop();
 	output->mGain = ctx->makeNode( new audio::GainNode( 0.99f ) );
 	output->mChannelRouter = ctx->makeNode( new audio::ChannelRouterNode( audio::Node::Format().channels( ctx->getOutput()->getNumChannels() ) ) );
 
 	output->mBufferPlayer >> output->mGain >> output->mChannelRouter->route( 0, channel ) >>  ctx->getOutput(); //->getOutputs()[channel];
 	output->mDisplaySize.y = height;
-	output->generateTexture( buffer );
+	output->generateTexture();
 	output->mBufferPlayer->stop();
 	output->mBufferPlayer->disable();
 
 	output->mAllowsMute = false;
+	output->mOriginalDuration = output->mBufferPlayer->getNumSeconds();
 
 	return output;
 }
@@ -90,7 +92,7 @@ void AudioTrack::setPlayhead( float t ) {
 }
 
 float AudioTrack::getDuration() const {
-	return mBufferPlayer->getNumSeconds();
+	return mOriginalDuration; 
 }
 
 int AudioTrack::getHeight() const {
@@ -101,7 +103,7 @@ void AudioTrack::draw( int width ) const {
 	gl::draw( mTexture, Rectf( 0, 0, width, mTexture->getHeight() ) );
 }
 
-void AudioTrack::generateTexture( const ci::audio::BufferRef &buffer ) {
+void AudioTrack::generateTexture() {
 
 	gl::FboRef fbo = gl::Fbo::create( mDisplaySize.x, mDisplaySize.y, true );
 
@@ -117,10 +119,10 @@ void AudioTrack::generateTexture( const ci::audio::BufferRef &buffer ) {
 		gl::ScopedColor c( ColorA( 1, 1, 1, 0.8 ) );
 
 		PolyLine2f line;
-		const auto N = buffer->getNumFrames();
+		const auto N = mBuffer->getNumFrames();
 		float xStep = mDisplaySize.x / static_cast<float>( N );
 
-		float *data = buffer->getChannel( 0 );
+		float *data = mBuffer->getChannel( 0 );
 		float center = mDisplaySize.y * 0.5f;
 		float height = mDisplaySize.y * 0.45f;
 		float x = 0;
@@ -138,7 +140,21 @@ void AudioTrack::generateTexture( const ci::audio::BufferRef &buffer ) {
 }
 
 void AudioTrack::setSpeed( float r ) {
-//	mBufferPlayer->
+	const   float *data = mBuffer->getChannel( 0 );
+	size_t len = mBuffer->getNumFrames();
+	size_t newLen = static_cast<size_t>( len / r );
+
+	mCurrentBuffer = std::shared_ptr<audio::Buffer>( new audio::Buffer( newLen, 1 ) );
+	float *newData = mCurrentBuffer->getData();
+	size_t index;
+	for ( size_t i = 0; i < newLen; i++ ) {
+		index = static_cast<size_t>( math<float>::floor( i * r ) );
+		newData[i] = data[index];
+	}
+
+	mBufferPlayer->setBuffer( mCurrentBuffer );
+
+	cout << "setting speed to " << r << endl;
 }
 
 
