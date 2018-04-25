@@ -53,13 +53,13 @@ void AeroApp::setup() {
 	mHouseAudio = AudioTrack::create( audioPath, 0 );
 	mHouseAudio->setName( "House audio" );
 
-//	mTimecode = AudioTrack::create( getAssetPath("timecode.wav"), 1, 30 );
-//	mTimecode->setName( "Timecode" );
+	mTimecode = AudioTrack::create( getAssetPath("timecode.wav"), 1, 30 );
+	mTimecode->setName( "Timecode" );
 
 
 	mTransport.add( mFrameSequence );
 	mTransport.add( mHouseAudio );
-//	mTransport.add( mTimecode );
+	mTransport.add( mTimecode );
 	mTransport.setDisplayWidth( getWindowWidth() );
 
 	mMappingOffset = ivec2( 20 , mTransport.getHeight() + 20 );

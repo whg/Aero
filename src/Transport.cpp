@@ -118,9 +118,10 @@ void Transport::play() {
 	mPlayThread = std::thread( &Transport::update, this );
 
 	for ( auto &object : mObjects ) {
-		object->setSpeed( mFrameRate / DEFAULT_FRAMERATE );
+		float speed = mFrameRate / DEFAULT_FRAMERATE;
+		object->setSpeed( speed );
 		object->play();
-		object->setPlayhead( mPlayhead.load() );
+		object->setPlayhead( mPlayhead.load() / speed );
 	}
 }
 
