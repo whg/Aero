@@ -141,7 +141,7 @@ void AudioTrack::generateTexture() {
 		float center = mDisplaySize.y * 0.5f;
 		float height = mDisplaySize.y * 0.45f;
 		float x = 0;
-//		size_t startIndex = static_cast<size_t>( mLeadinTime * mBufferPlayer->getSampleRate() );
+		size_t startIndex = static_cast<size_t>( mLeadinTime * mBufferPlayer->getSampleRate() );
 //		cout << "sample rate is : " << mBufferPlayer->getSampleRate() << endl;
 		for ( size_t i = 0; i < N; i++ ) {
 			line.push_back( vec2( x, center + data[i] * height ) );

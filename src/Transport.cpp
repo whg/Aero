@@ -15,7 +15,7 @@ using namespace ci;
 using namespace std;
 
 Transport::Transport(): mDisplaySize( 640, 0 ), mDuration( 0.f ), mCueFrame( 0 ),
-						mFrameRate( DEFAULT_FRAMERATE ), mPlaying( false ), mPlayhead( 0 ),
+						mFrameRate( 35 ), mPlaying( false ), mPlayhead( 0 ),
 						mFrameNumber( 0 ), mEndFrame( 0 ), mStopFrame( 0 ) {
 
 }
@@ -101,6 +101,8 @@ void Transport::drawUi() {
 			}
 		}
 	}
+
+
 }
 
 void Transport::play() {

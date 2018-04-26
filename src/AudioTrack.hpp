@@ -46,5 +46,6 @@ protected:
 
 	float mOriginalDuration;
 	float mLeadinTime;
+//	float mGain;
 };
 

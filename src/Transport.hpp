@@ -104,5 +104,7 @@ protected:
 	float screenToTime( int x ) { return static_cast<float>( x ) / mDisplaySize.x * mDuration; }
 public:
 	void mouseDown( glm::ivec2 p );
+
+
 };
 

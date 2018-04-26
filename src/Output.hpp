@@ -41,6 +41,7 @@ protected:
 	DataSignal_t mDataSignal;
 
 	int mValueThreshold;
+	bool mLive;
 
 private:
 	Output();
