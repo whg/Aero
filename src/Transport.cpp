@@ -26,7 +26,7 @@ void Transport::add( TransportObjectRef object ) {
 	mDisplaySize.y+= object->getHeight();
 	mDuration = std::max( object->getDuration(), mDuration );
 	if ( object->isFrameBased() ) {
-		mEndFrame = std::max( object->getNumFrames(), mEndFrame );
+		mEndFrame = std::max( static_cast<int>( object->getNumFrames() ), mEndFrame );
 		mStopFrame = mEndFrame;
 	}
 }
@@ -90,7 +90,7 @@ void Transport::drawUi() {
 	ui::DragInt( "Frame", &frame );
 	ui::DragFloat( "Time", &time );
 	ui::DragFloat( "Frame rate", &mFrameRate, 0.1f, 1, 100 );
-	ui::DragInt( "Cue frame", &mCueFrame, 0.5f, 0, mStopFrame );
+	ui::DragInt( "Cue frame", &mCueFrame, 0.5f, -1000, mStopFrame );
 	ui::DragInt( "Stop frame", &mStopFrame, 0.5f, mCueFrame, mEndFrame );
 
 	for ( const auto &object : mObjects ) {
@@ -108,26 +108,42 @@ void Transport::play() {
 	mFrameNumber = mCueFrame;
 	mPlayhead.store( mFrameNumber / DEFAULT_FRAMERATE );
 	mPlaying.store( true );
-
+	mStarted = false;
 
 
 	if ( mPlayThread.joinable() ) {
 		mPlayThread.join();
 	}
 
-	mPlayThread = std::thread( &Transport::update, this );
 
-	for ( auto &object : mObjects ) {
-		float speed = mFrameRate / DEFAULT_FRAMERATE;
-		object->setSpeed( speed );
-		object->play();
-		if ( object->getAllowSpeedChange() ) {
-			object->setPlayhead( mPlayhead.load() / speed );
+	if ( mFrameNumber >= 0 ) {
+		for ( auto &object : mObjects ) {
+			float speed = mFrameRate / DEFAULT_FRAMERATE;
+			object->setSpeed( speed );
+			object->play();
+			if ( object->getAllowSpeedChange() ) {
+				object->setPlayhead( mPlayhead.load() / speed );
+			}
+			else {
+				object->setPlayhead( mPlayhead.load() );
+			}
 		}
-		else {
-			object->setPlayhead( mPlayhead.load() );
+		mStarted = true;
+	}
+	else {
+		float speed = mFrameRate / DEFAULT_FRAMERATE;
+		for ( auto &object : mObjects ) {
+			if ( object->allowsNegativeCue() ) {
+				object->setSpeed( speed );
+				object->play();
+				object->setPlayhead( mPlayhead.load() / speed );
+			}
 		}
 	}
+
+	mPlayThread = std::thread( &Transport::update, this );
+
+
 }
 
 void Transport::pause() {
@@ -149,6 +165,23 @@ void Transport::update() {
 
 	while ( mPlaying ) {
 
+		if ( mFrameNumber.load() == 0 && !mStarted.load() ) {
+			for ( auto &object : mObjects ) {
+				if ( !object->allowsNegativeCue() ) {
+					float speed = mFrameRate / DEFAULT_FRAMERATE;
+					object->setSpeed( speed );
+					object->play();
+					if ( object->getAllowSpeedChange() ) {
+						object->setPlayhead( mPlayhead.load() / speed );
+					}
+					else {
+						object->setPlayhead( mPlayhead.load() );
+					}
+				}
+
+			}
+		}
+
 		for ( const auto &object : mObjects ) {
 			if ( object->isFrameBased() && mFrameNumber.load() < object->getNumFrames() ) {
 				object->writeData( mFrameNumber.load() );
@@ -158,7 +191,6 @@ void Transport::update() {
 
 		mFrameNumber.store( mFrameNumber.load() + 1 );
 		mPlayhead.store( mFrameNumber.load() / DEFAULT_FRAMERATE );
-
 
 		if ( mFrameNumber.load() >= mEndFrame ) {
 			break;

@@ -42,7 +42,7 @@ ci::audio::DeviceRef AudioTrack::getOutputDevice() {
 	return device;
 }
 
-AudioTrack::AudioTrack(): mDisplaySize( 1440, 100 ) {
+AudioTrack::AudioTrack(): mDisplaySize( 1440, 100 ), mLeadinTime( 0 ) {
 
 }
 
@@ -91,7 +91,9 @@ AudioTrackRef AudioTrack::create( const ci::fs::path &path, size_t channel, int 
 }
 
 void AudioTrack::play() {
-	mBufferPlayer->start();
+ 	mBufferPlayer->start();
+	mBufferPlayer->enable();
+	cout << "play" << endl;
 }
 
 void AudioTrack::stop() {
@@ -99,11 +101,13 @@ void AudioTrack::stop() {
 }
 
 void AudioTrack::setPlayhead( float t ) {
-	mBufferPlayer->seekToTime( t );
+	float time = t + mLeadinTime / mSpeed;
+	mBufferPlayer->seekToTime( time );
+	cout << "seeking to time: " << time << endl;
 }
 
 float AudioTrack::getDuration() const {
-	return mOriginalDuration; 
+	return mOriginalDuration - mLeadinTime;
 }
 
 int AudioTrack::getHeight() const {
@@ -137,7 +141,9 @@ void AudioTrack::generateTexture() {
 		float center = mDisplaySize.y * 0.5f;
 		float height = mDisplaySize.y * 0.45f;
 		float x = 0;
-		for ( int i = 0; i < N; i++ ) {
+//		size_t startIndex = static_cast<size_t>( mLeadinTime * mBufferPlayer->getSampleRate() );
+//		cout << "sample rate is : " << mBufferPlayer->getSampleRate() << endl;
+		for ( size_t i = 0; i < N; i++ ) {
 			line.push_back( vec2( x, center + data[i] * height ) );
 			x+= xStep;
 		}
@@ -169,6 +175,8 @@ void AudioTrack::setSpeed( float r ) {
 
 		cout << "setting speed to " << r << endl;
 	}
+
+	mSpeed = r;
 
 }
 

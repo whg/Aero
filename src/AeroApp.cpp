@@ -54,9 +54,12 @@ void AeroApp::setup() {
 	mHouseAudio->setName( "House audio" );
 	mHouseAudio->setAllowsMute( true );
 
-	mTimecode = AudioTrack::create( getAssetPath("timecode30.wav"), 1 , 30 );
+	mTimecode = AudioTrack::create( getAssetPath("timecode25-cue.wav"), 1 , 30 );
 	mTimecode->setName( "Timecode" );
-	mTimecode->setAllowSpeedChange( false );
+	mTimecode->setAllowsNegativeCue( true );
+	mTimecode->setLeadinTime( 120 );
+	mTimecode->generateTexture();
+	mTimecode->setMuteUntilFrame( -30000  );
 
 	mTransport.add( mFrameSequence );
 	mTransport.add( mHouseAudio );

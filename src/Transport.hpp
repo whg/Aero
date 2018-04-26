@@ -13,7 +13,7 @@
 #define DEFAULT_FRAMERATE 25.f
 
 struct TransportObject {
-	TransportObject(): mMuteUntilFrame( 0 ), mSpeed( 1.0f ), mAllowsMute( true ), mAllowsSpeedChange( true ) {}
+	TransportObject(): mMuteUntilFrame( 0 ), mSpeed( 1.0f ), mAllowsMute( true ), mAllowsSpeedChange( true ), mAllowsNegativeCue( false ) {}
 	virtual ~TransportObject() = default;
 
 	virtual void setName( std::string name ) { mName = name; }
@@ -25,6 +25,9 @@ struct TransportObject {
 	virtual void setSpeed( float r ) { mSpeed = r; }
 	virtual void setAllowSpeedChange( bool b ) { mAllowsSpeedChange = b; }
 	virtual bool getAllowSpeedChange() const { return mAllowsSpeedChange; }
+
+	virtual bool allowsNegativeCue() { return mAllowsNegativeCue; }
+	virtual void setAllowsNegativeCue( bool b) { mAllowsNegativeCue = b; }
 
 	virtual float getDuration() const {}
 	virtual int getHeight() const {}
@@ -49,6 +52,7 @@ protected:
 	std::string mName;
 	float mSpeed;
 	bool mAllowsSpeedChange;
+	bool mAllowsNegativeCue;
 };
 
 using TransportObjectRef = std::shared_ptr<TransportObject>;
@@ -76,15 +80,16 @@ public:
 	int getHeight() const;
 
 protected:
-	std::atomic<size_t> mFrameNumber;
+	std::atomic<int> mFrameNumber;
 	std::atomic<float> mPlayhead;
 	float mFrameRate;
-	size_t mEndFrame;
+	int mEndFrame;
 	glm::ivec2 mDisplaySize;
 	float mDuration;
 	std::vector<TransportObjectRef> mObjects;
 
 	int mCueFrame, mStopFrame;
+	std::atomic<bool> mStarted;
 
 	std::thread mPlayThread;
 	std::atomic<bool> mPlaying;

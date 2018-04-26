@@ -84,7 +84,7 @@ gl::TextureRef FrameSequence::generateTexture() {
 }
 
 void FrameSequence::writeData( size_t frameNum ) const {
-	if ( frameNum >= mDmxSequences.size() ) {
+	if ( frameNum >= mDmxSequences.size() && frameNum >= 0 ) {
 		CI_LOG_E( frameNum << "is too big an index" );
 		return;
 	}

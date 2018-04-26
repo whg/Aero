@@ -30,6 +30,10 @@ public:
 
 	void updateMute( int frame) override;
 
+	void setLeadinTime( float time ) { mLeadinTime = time; }
+
+	void generateTexture();
+
 protected:
 	ci::audio::BufferRef mBuffer, mCurrentBuffer;
 	ci::audio::GainNodeRef mGain;
@@ -39,8 +43,8 @@ protected:
 protected:
 	glm::ivec2 mDisplaySize;
 	ci::gl::TextureRef mTexture;
-	void generateTexture();
 
 	float mOriginalDuration;
+	float mLeadinTime;
 };
 
