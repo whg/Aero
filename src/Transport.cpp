@@ -15,7 +15,7 @@ using namespace ci;
 using namespace std;
 
 Transport::Transport(): mDisplaySize( 640, 0 ), mDuration( 0.f ), mCueFrame( 0 ),
-						mFrameRate( 25 ), mPlaying( false ), mPlayhead( 0 ),
+						mFrameRate( DEFAULT_FRAMERATE ), mPlaying( false ), mPlayhead( 0 ),
 						mFrameNumber( 0 ), mEndFrame( 0 ), mStopFrame( 0 ) {
 
 }
@@ -121,7 +121,12 @@ void Transport::play() {
 		float speed = mFrameRate / DEFAULT_FRAMERATE;
 		object->setSpeed( speed );
 		object->play();
-		object->setPlayhead( mPlayhead.load() / speed );
+		if ( object->getAllowSpeedChange() ) {
+			object->setPlayhead( mPlayhead.load() / speed );
+		}
+		else {
+			object->setPlayhead( mPlayhead.load() );
+		}
 	}
 }
 
@@ -148,6 +153,7 @@ void Transport::update() {
 			if ( object->isFrameBased() && mFrameNumber.load() < object->getNumFrames() ) {
 				object->writeData( mFrameNumber.load() );
 			}
+			object->updateMute( mFrameNumber.load() );
 		}
 
 		mFrameNumber.store( mFrameNumber.load() + 1 );

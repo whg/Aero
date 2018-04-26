@@ -12,13 +12,22 @@ std::string Node::getName() const { return ""; }
 using namespace std;
 using namespace ci;
 
+#define DEFAULT_GAIN 0.9f
+
 
 ci::audio::DeviceRef AudioTrack::getOutputDevice() {
 	static ci::audio::DeviceRef device = nullptr;
 
 	if ( !device ) {
+
 		auto ctx = audio::Context::master();
 		auto dm = ctx->deviceManager();
+		auto devices = dm->getDevices();
+
+		for ( auto &d : devices ) {
+			cout << d->getNumOutputChannels() << " :: " << d->getName() << ", " << d->getKey() << endl;
+		}
+
 		auto ni = dm->findDeviceByKey( "alsa_output.usb-Native_Instruments_Komplete_Audio_6_139D1FA3-00.analog-surround-21" );
 		if ( ni ) {
 			cout << "found NI" << endl;
@@ -27,6 +36,7 @@ ci::audio::DeviceRef AudioTrack::getOutputDevice() {
 			device = dm->getDefaultOutput();
 			cout << "reverting to default audio device" << endl;
 		}
+		cout << "we have " << device->getNumOutputChannels() << " output channels" << endl;
 	}
 
 	return device;
@@ -54,7 +64,8 @@ AudioTrackRef AudioTrack::create( const ci::fs::path &path, size_t channel, int 
 	static bool created = false;
 	if ( !created ) {
 		auto format = audio::Node::Format();
-		format.setChannels( 2 );
+		format.setChannels( 3 );
+		format.setChannelMode( audio::Node::ChannelMode::MATCHES_OUTPUT );
 		auto outputNode = ctx->createOutputDeviceNode( device, format );
 		ctx->disable();
 		ctx->setOutput( outputNode );
@@ -64,7 +75,7 @@ AudioTrackRef AudioTrack::create( const ci::fs::path &path, size_t channel, int 
 
 	output->mBufferPlayer = ctx->makeNode( new audio::BufferPlayerNode( output->mCurrentBuffer ) );
 	output->mBufferPlayer->stop();
-	output->mGain = ctx->makeNode( new audio::GainNode( 0.99f ) );
+	output->mGain = ctx->makeNode( new audio::GainNode( DEFAULT_GAIN ) );
 	output->mChannelRouter = ctx->makeNode( new audio::ChannelRouterNode( audio::Node::Format().channels( ctx->getOutput()->getNumChannels() ) ) );
 
 	output->mBufferPlayer >> output->mGain >> output->mChannelRouter->route( 0, channel ) >>  ctx->getOutput(); //->getOutputs()[channel];
@@ -84,7 +95,7 @@ void AudioTrack::play() {
 }
 
 void AudioTrack::stop() {
-	mBufferPlayer->stop();
+  	mBufferPlayer->stop();
 }
 
 void AudioTrack::setPlayhead( float t ) {
@@ -140,22 +151,36 @@ void AudioTrack::generateTexture() {
 }
 
 void AudioTrack::setSpeed( float r ) {
-	const   float *data = mBuffer->getChannel( 0 );
-	size_t len = mBuffer->getNumFrames();
-	size_t newLen = static_cast<size_t>( len / r );
 
-	mCurrentBuffer = std::shared_ptr<audio::Buffer>( new audio::Buffer( newLen, 1 ) );
-	float *newData = mCurrentBuffer->getData();
-	size_t index;
-	for ( size_t i = 0; i < newLen; i++ ) {
-		index = static_cast<size_t>( math<float>::floor( i * r ) );
-		newData[i] = data[index];
+	if ( mAllowsSpeedChange ) {
+		const   float *data = mBuffer->getChannel( 0 );
+		size_t len = mBuffer->getNumFrames();
+		size_t newLen = static_cast<size_t>( len / r );
+
+		mCurrentBuffer = std::shared_ptr<audio::Buffer>( new audio::Buffer( newLen, 1 ) );
+		float *newData = mCurrentBuffer->getData();
+		size_t index;
+		for ( size_t i = 0; i < newLen; i++ ) {
+			index = static_cast<size_t>( math<float>::floor( i * r ) );
+			newData[i] = data[index];
+		}
+
+		mBufferPlayer->setBuffer( mCurrentBuffer );
+
+		cout << "setting speed to " << r << endl;
 	}
 
-	mBufferPlayer->setBuffer( mCurrentBuffer );
-
-	cout << "setting speed to " << r << endl;
 }
+
+void AudioTrack::updateMute( int frame ) {
+	if ( frame < mMuteUntilFrame ) {
+		mGain->setValue( 0 );
+	}
+	else {
+		mGain->setValue( DEFAULT_GAIN );
+	}
+}
+
 
 
 

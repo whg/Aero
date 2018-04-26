@@ -28,6 +28,8 @@ public:
 	int getHeight() const override;
 	void draw( int width ) const override;
 
+	void updateMute( int frame) override;
+
 protected:
 	ci::audio::BufferRef mBuffer, mCurrentBuffer;
 	ci::audio::GainNodeRef mGain;

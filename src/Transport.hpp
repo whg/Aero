@@ -13,7 +13,7 @@
 #define DEFAULT_FRAMERATE 25.f
 
 struct TransportObject {
-	TransportObject(): mMuteUntilFrame( 0 ), mSpeed( 1.0f ), mAllowsMute( true ) {}
+	TransportObject(): mMuteUntilFrame( 0 ), mSpeed( 1.0f ), mAllowsMute( true ), mAllowsSpeedChange( true ) {}
 	virtual ~TransportObject() = default;
 
 	virtual void setName( std::string name ) { mName = name; }
@@ -23,6 +23,8 @@ struct TransportObject {
 	virtual void play() {}
 	virtual void stop() {}
 	virtual void setSpeed( float r ) { mSpeed = r; }
+	virtual void setAllowSpeedChange( bool b ) { mAllowsSpeedChange = b; }
+	virtual bool getAllowSpeedChange() const { return mAllowsSpeedChange; }
 
 	virtual float getDuration() const {}
 	virtual int getHeight() const {}
@@ -30,9 +32,11 @@ struct TransportObject {
 	virtual void draw( int width ) const {}
 
 	virtual bool getAllowsMute() const { return mAllowsMute; }
+	virtual void setAllowsMute( bool b ) { mAllowsMute = b; }
 	virtual int getMuteUntilFrame() const { return mMuteUntilFrame; }
 	virtual float getMuteUntil() const { return mMuteUntilFrame / DEFAULT_FRAMERATE; }
 	virtual void setMuteUntilFrame( int frame ) { mMuteUntilFrame = frame; }
+	virtual void updateMute( int frame ) {}
 
 	virtual bool isFrameBased() const { return false; }
 	virtual size_t getNumFrames() const { return 0; }
@@ -44,6 +48,7 @@ protected:
 	int mMuteUntilFrame;
 	std::string mName;
 	float mSpeed;
+	bool mAllowsSpeedChange;
 };
 
 using TransportObjectRef = std::shared_ptr<TransportObject>;

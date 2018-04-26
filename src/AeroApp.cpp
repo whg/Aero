@@ -43,19 +43,20 @@ void AeroApp::setup() {
 	ui::initialize( ui::Options().darkTheme() );
 
 	mSequenceFolder.reserve( 50 );
-	mSequenceFolder = "test_001";
+	mSequenceFolder = "shoot_day_01";
 	auto imageFolder = getAssetPath( mSequenceFolder );
 	mMapping = std::make_shared<Mapping>( getAssetPath( "mapping.json" ) );
-	mFrameSequence = FrameSequence::create( folderPathFromName( mSequenceFolder ), *mMapping );
+	mFrameSequence = FrameSequence::create( folderPathFromName( mSequenceFolder ), *mMapping, DEFAULT_FRAMERATE );
 	mFrameSequence->setName( "Bubbles" );
 
 	fs::path audioPath("/home/whg/Dropbox/sequences/audio/playback_audio_mono.wav");
 	mHouseAudio = AudioTrack::create( audioPath, 0 );
 	mHouseAudio->setName( "House audio" );
+	mHouseAudio->setAllowsMute( true );
 
-	mTimecode = AudioTrack::create( getAssetPath("timecode.wav"), 1, 30 );
+	mTimecode = AudioTrack::create( getAssetPath("timecode30.wav"), 1 , 30 );
 	mTimecode->setName( "Timecode" );
-
+	mTimecode->setAllowSpeedChange( false );
 
 	mTransport.add( mFrameSequence );
 	mTransport.add( mHouseAudio );
